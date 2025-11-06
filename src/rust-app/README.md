@@ -28,6 +28,42 @@ cargo run
 
 The server will start on `http://localhost:8000`
 
+## Docker
+
+### Build Docker Image
+
+```bash
+make docker-build
+# or
+docker build -t weather-api:latest .
+```
+
+### Run with Docker Compose
+
+```bash
+make docker-run
+# or
+docker-compose up -d
+```
+
+The API will be available at `http://localhost:8000`
+
+### Stop Docker Container
+
+```bash
+make docker-stop
+# or
+docker-compose down
+```
+
+### Docker Best Practices Used
+
+- **Multi-stage build**: Separates build and runtime stages
+- **Distroless base image**: Minimal attack surface, only contains application and runtime dependencies
+- **Layer caching**: Dependencies are built separately for faster rebuilds
+- **Small image size**: Distroless images are significantly smaller than full OS images
+- **.dockerignore**: Excludes unnecessary files from build context
+
 ## Testing
 
 Run all tests:

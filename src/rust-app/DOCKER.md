@@ -2,40 +2,27 @@
 
 ## Overview
 
-The Weather API includes two Dockerfile configurations optimized for production use with Rust applications.
+The Weather API uses an optimized Dockerfile with cargo-chef for production-grade Rust containerization.
 
-## Dockerfile Approaches
+## Dockerfile Architecture
 
-### 1. Standard Dockerfile (`Dockerfile`)
+The Dockerfile uses **cargo-chef** for intelligent dependency caching:
 
-**Pros:**
-- Simple and straightforward
-- No additional tools required
-- Good caching for most use cases
+**How it works:**
+1. **Planner stage**: Analyzes your project and creates a "recipe" of dependencies
+2. **Builder stage**: Builds only the dependencies that changed
+3. **Final build**: Compiles your actual application code
+4. **Runtime stage**: Minimal distroless image with just the binary
 
-**Cons:**
-- Rebuilds all dependencies when source code changes (if Cargo files unchanged but dependencies added/removed)
-- Slightly slower iterative builds
+**Benefits:**
+- Only rebuilds dependencies when they actually change
+- Source code changes don't trigger full dependency rebuild
+- Significantly faster iterative builds (seconds vs minutes)
+- Industry standard for Rust Docker builds
 
 **Usage:**
 ```bash
 docker build -t weather-api:latest .
-```
-
-### 2. Cargo-Chef Dockerfile (`Dockerfile.chef`)
-
-**Pros:**
-- Optimal dependency caching
-- Only rebuilds dependencies when they actually change
-- Fastest iterative builds during development
-
-**Cons:**
-- Requires cargo-chef installation (handled in Dockerfile)
-- Slightly more complex build process
-
-**Usage:**
-```bash
-docker build -f Dockerfile.chef -t weather-api:latest .
 ```
 
 ## Best Practices Implemented

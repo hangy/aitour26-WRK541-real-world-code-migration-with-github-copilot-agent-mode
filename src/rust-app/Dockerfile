@@ -1,18 +1,23 @@
-# Build stage
-FROM rust:1.83-bookworm AS builder
-
+# Build stage with cargo-chef for better layer caching
+FROM rust:1.83-bookworm AS chef
+RUN cargo install cargo-chef
 WORKDIR /app
 
-# Copy the entire project
-COPY Cargo.toml Cargo.lock ./
-COPY src ./src
+# Prepare recipe
+FROM chef AS planner
+COPY . .
+RUN cargo chef prepare --recipe-path recipe.json
 
-# Build the application
-# Note: Dependencies will be cached as long as Cargo.toml and Cargo.lock don't change
-RUN cargo build --release
+# Build dependencies
+FROM chef AS builder
+COPY --from=planner /app/recipe.json recipe.json
+# Build dependencies - this layer is cached as long as dependencies don't change
+RUN cargo chef cook --release --recipe-path recipe.json
 
-# Strip the binary to reduce size
-RUN strip target/release/weather-api
+# Copy source and build application
+COPY . .
+RUN cargo build --release && \
+    strip target/release/weather-api
 
 # Runtime stage using distroless
 FROM gcr.io/distroless/cc-debian12
@@ -21,7 +26,7 @@ FROM gcr.io/distroless/cc-debian12
 COPY --from=builder /app/target/release/weather-api /app/weather-api
 
 # Copy the weather.json data file
-COPY weather.json /app/weather.json
+COPY --from=builder /app/weather.json /app/weather.json
 
 # Set working directory
 WORKDIR /app

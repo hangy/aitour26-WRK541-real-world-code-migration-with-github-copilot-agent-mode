@@ -59,21 +59,13 @@ docker-compose down
 ### Docker Best Practices Used
 
 - **Multi-stage build**: Separates build and runtime stages
+- **cargo-chef**: Optimal dependency caching - only rebuilds changed dependencies
 - **Distroless base image**: Minimal attack surface, only contains application and runtime dependencies
-- **Layer caching**: Dependencies are cached as long as `Cargo.toml` and `Cargo.lock` don't change
 - **Binary stripping**: Reduces binary size by removing debug symbols
-- **Small image size**: Distroless images are significantly smaller than full OS images
+- **Small image size**: Distroless images are significantly smaller than full OS images (~50-70 MB)
 - **.dockerignore**: Excludes unnecessary files from build context
 
-### Advanced: Dockerfile with cargo-chef
-
-For even better dependency caching, use `Dockerfile.chef`:
-
-```bash
-docker build -f Dockerfile.chef -t weather-api:latest .
-```
-
-This uses [cargo-chef](https://github.com/LukeMathWalker/cargo-chef) to create a separate layer for dependencies, providing optimal caching when only source code changes.
+The Dockerfile uses [cargo-chef](https://github.com/LukeMathWalker/cargo-chef) to intelligently cache dependencies, making iterative builds much faster.
 
 ## Testing
 

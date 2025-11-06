@@ -31,7 +31,7 @@ pub struct ErrorResponse {
 #[get("/")]
 pub async fn root() -> impl Responder {
     HttpResponse::Found()
-        .append_header(("Location", "/docs"))
+        .append_header(("Location", "/docs/"))
         .finish()
 }
 

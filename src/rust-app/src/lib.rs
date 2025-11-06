@@ -45,11 +45,11 @@ pub fn create_app() -> App<
     let openapi = ApiDoc::openapi();
     
     App::new()
+        .service(
+            SwaggerUi::new("/docs/{_:.*}")
+                .url("/api-docs/openapi.json", openapi.clone())
+        )
         .service(routes::root)
         .service(routes::countries)
         .service(routes::monthly_average)
-        .service(
-            SwaggerUi::new("/docs{_:/?.*}")
-                .url("/api-docs/openapi.json", openapi.clone())
-        )
 }

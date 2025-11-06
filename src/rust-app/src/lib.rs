@@ -50,6 +50,7 @@ pub fn create_app() -> App<
                 .url("/api-docs/openapi.json", openapi.clone())
         )
         .service(routes::root)
+        .service(routes::docs_redirect)
         .service(routes::countries)
         .service(routes::monthly_average)
 }

@@ -35,6 +35,14 @@ pub async fn root() -> impl Responder {
         .finish()
 }
 
+/// Redirect /docs to /docs/ for Swagger UI
+#[get("/docs")]
+pub async fn docs_redirect() -> impl Responder {
+    HttpResponse::Found()
+        .append_header(("Location", "/docs/"))
+        .finish()
+}
+
 /// Get list of all countries
 #[utoipa::path(
     get,

@@ -5,15 +5,16 @@ use crate::models::Temperature;
 /// Root endpoint - redirects to API documentation
 #[get("/")]
 pub async fn root() -> impl Responder {
-    // TODO: Implement redirect to /docs
-    HttpResponse::Ok().body("Weather API")
+    HttpResponse::Found()
+        .append_header(("Location", "/docs"))
+        .finish()
 }
 
 /// Get list of all countries
 #[get("/countries")]
 pub async fn countries() -> impl Responder {
-    // TODO: Implement country list
-    HttpResponse::Ok().json(Vec::<String>::new())
+    let country_list: Vec<String> = WEATHER_DATA.keys().cloned().collect();
+    HttpResponse::Ok().json(country_list)
 }
 
 /// Get monthly average temperature for a specific location
@@ -23,6 +24,30 @@ pub async fn monthly_average(
 ) -> impl Responder {
     let (country, city, month) = path.into_inner();
     
-    // TODO: Implement data retrieval with proper error handling
-    HttpResponse::Ok().json(Temperature { high: 0, low: 0 })
+    // Try to find the data, return 404 if any level is missing
+    match WEATHER_DATA.get(&country) {
+        None => HttpResponse::NotFound()
+            .json(serde_json::json!({
+                "error": "Country not found",
+                "country": country
+            })),
+        Some(cities) => match cities.get(&city) {
+            None => HttpResponse::NotFound()
+                .json(serde_json::json!({
+                    "error": "City not found",
+                    "country": country,
+                    "city": city
+                })),
+            Some(months) => match months.get(&month) {
+                None => HttpResponse::NotFound()
+                    .json(serde_json::json!({
+                        "error": "Month not found",
+                        "country": country,
+                        "city": city,
+                        "month": month
+                    })),
+                Some(temperature) => HttpResponse::Ok().json(temperature),
+            },
+        },
+    }
 }

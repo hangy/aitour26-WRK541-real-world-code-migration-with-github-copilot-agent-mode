@@ -2,7 +2,7 @@ pub mod data;
 pub mod models;
 pub mod routes;
 
-use actix_web::{App, HttpServer};
+use actix_web::App;
 
 /// Create and configure the Actix web application
 pub fn create_app() -> App<
@@ -15,5 +15,7 @@ pub fn create_app() -> App<
     >,
 > {
     App::new()
-        // Routes will be configured here
+        .service(routes::root)
+        .service(routes::countries)
+        .service(routes::monthly_average)
 }

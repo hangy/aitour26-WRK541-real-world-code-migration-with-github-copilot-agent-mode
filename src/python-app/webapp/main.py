@@ -20,7 +20,7 @@ def root():
     Allows to open the API documentation in the browser directly instead of
     requiring to open the /docs path.
     """
-    return RedirectResponse(url='/docs', status_code=301)
+    return RedirectResponse(url='/docs', status_code=302)
 
 
 @app.get('/countries')

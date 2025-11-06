@@ -49,7 +49,7 @@ pub fn create_app() -> App<
         .service(routes::countries)
         .service(routes::monthly_average)
         .service(
-            SwaggerUi::new("/docs/{_:.*}")
+            SwaggerUi::new("/docs{_:/?.*}")
                 .url("/api-docs/openapi.json", openapi.clone())
         )
 }

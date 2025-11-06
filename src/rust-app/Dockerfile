@@ -1,26 +1,18 @@
 # Build stage
 FROM rust:1.83-bookworm AS builder
 
-# Create a new empty shell project
 WORKDIR /app
 
-# Copy manifests
+# Copy the entire project
 COPY Cargo.toml Cargo.lock ./
-
-# Create a dummy main.rs to build dependencies
-RUN mkdir src && \
-    echo "fn main() {}" > src/main.rs && \
-    echo "pub fn create_app() -> actix_web::App<impl actix_web::dev::ServiceFactory<actix_web::dev::ServiceRequest, Config = (), Response = actix_web::dev::ServiceResponse, Error = actix_web::Error, InitError = ()>> { actix_web::App::new() }" > src/lib.rs
-
-# Build dependencies (this layer will be cached)
-RUN cargo build --release && \
-    rm -rf src
-
-# Copy actual source code
 COPY src ./src
 
-# Build the actual application
+# Build the application
+# Note: Dependencies will be cached as long as Cargo.toml and Cargo.lock don't change
 RUN cargo build --release
+
+# Strip the binary to reduce size
+RUN strip target/release/weather-api
 
 # Runtime stage using distroless
 FROM gcr.io/distroless/cc-debian12
